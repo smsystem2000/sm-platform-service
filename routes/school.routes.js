@@ -11,8 +11,8 @@ const Authenticated = require("../middlewares/auth");
 const authorizeRoles = require("../middlewares/authorizeRole");
 
 // Apply authentication and authorization to all routes
-// router.use(Authenticated);
-// router.use(authorizeRoles("super_admin"));
+router.use(Authenticated);
+router.use(authorizeRoles("super_admin"));
 
 // Create a new school
 router.post("/create-school", createSchool);
