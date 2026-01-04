@@ -1,7 +1,11 @@
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
 require('dotenv').config();
+
+const connectDB = require('./configs/db');
+const schoolRoutes = require('./routes/school.routes');
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
 
 const app = express();
 
@@ -11,33 +15,30 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-// TODO: Add your routes here
-// const exampleRoutes = require('./routes/example.routes');
-// app.use('/api/example', exampleRoutes);
+app.use('/api/admin/school', schoolRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/admin/user', userRoutes);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
-
-// Database connection
-const connectDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log('MongoDB connected successfully');
-    } catch (error) {
-        console.error('MongoDB connection error:', error.message);
-        process.exit(1);
-    }
-};
+app.get("/", (_req, res) => {
+    res.send(`🚀 Server is running Securely`);
+});
 
 // Start server
 const PORT = process.env.PORT || 5000;
 
-connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
+connectDB()
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.error('Failed to connect to database:', error.message);
+        process.exit(1);
     });
-});
 
 module.exports = app;
