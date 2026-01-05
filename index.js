@@ -5,6 +5,7 @@ require('dotenv').config();
 const { connectDB } = require('./configs/db');
 const schoolRoutes = require('./routes/school.routes');
 const userRoutes = require('./routes/user.routes');
+const dashboardRoutes = require('./routes/dashboard.routes');
 
 const app = express();
 
@@ -34,9 +35,9 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes - Auth routes moved to sm-auth-services
 app.use('/api/admin/school', schoolRoutes);
 app.use('/api/admin/user', userRoutes);
+app.use('/api/admin/dashboard', dashboardRoutes);
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
