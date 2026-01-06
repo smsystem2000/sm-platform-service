@@ -12,18 +12,17 @@ const authorizeRoles = require("../middlewares/authorizeRole");
 
 // Apply authentication and authorization to all routes
 router.use(Authenticated);
-router.use(authorizeRoles("super_admin"));
 
 // Create a new school
-router.post("/create-school", createSchool);
+router.post("/create-school", authorizeRoles("super_admin"), createSchool);
 
 // Get all schools
-router.get("/get-all-schools", getAllSchools);
+router.get("/get-all-schools", authorizeRoles("super_admin"), getAllSchools);
 
 // Get school by schoolId
-router.get("/get-school/:schoolId", getSchoolById);
+router.get("/get-school/:schoolId", authorizeRoles(["super_admin", "sch_admin"]), getSchoolById);
 
 // Update school by schoolId
-router.put("/update-school/:schoolId", updateSchoolById);
+router.put("/update-school/:schoolId", authorizeRoles("super_admin"), updateSchoolById);
 
 module.exports = router;
