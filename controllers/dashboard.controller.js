@@ -2,6 +2,9 @@ const School = require("../models/schools.model");
 const User = require("../models/users.model");
 const Menu = require("../models/menu.model");
 const adminModel = require("../models/admin.model");
+const  generateMenuId  = require("../utils/generateMenuID");
+
+
 
 // Get dashboard stats
 const getDashboardStats = async (req, res) => {
@@ -80,7 +83,134 @@ const getMenus = async (req, res) => {
     }
 };
 
+// Create menu
+const createMenu = async (req, res) => {
+    try {
+        const {
+            menuName,
+            menuUrl,
+            menuOrder,
+            menuType,
+            parentMenuId,
+            menuAccessRoles,
+            logo,
+            schoolId,
+        } = req.body;
+
+        if (!menuName || !menuUrl || menuOrder === undefined || !menuType || !Array.isArray(menuAccessRoles) || menuAccessRoles.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "menuName, menuUrl, menuOrder, menuType, and menuAccessRoles are required",
+            });
+        }
+
+        const menuId = await generateMenuId();
+
+        const newMenu = new Menu({
+            menuId,
+            menuName,
+            menuUrl,
+            menuOrder,
+            menuType,
+            parentMenuId: parentMenuId || null,
+            menuAccessRoles,
+            logo: logo || null,
+            schoolId: schoolId || null,
+        });
+
+        const savedMenu = await newMenu.save();
+
+        return res.status(201).json({
+            success: true,
+            message: "Menu created successfully",
+            data: savedMenu,
+        });
+    } catch (error) {
+        console.error("Error creating menu:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to create menu",
+            error: error.message,
+        });
+    }
+};
+
+// Update menu by menuId
+const updateMenu = async (req, res) => {
+    try {
+        const { menuId } = req.params;
+        const updateData = { ...req.body };
+
+        // Prevent menuId overwrite
+        delete updateData.menuId;
+
+        if (updateData.menuAccessRoles && (!Array.isArray(updateData.menuAccessRoles) || updateData.menuAccessRoles.length === 0)) {
+            return res.status(400).json({
+                success: false,
+                message: "menuAccessRoles must be a non-empty array when provided",
+            });
+        }
+
+        const updatedMenu = await Menu.findOneAndUpdate(
+            { menuId },
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedMenu) {
+            return res.status(404).json({
+                success: false,
+                message: "Menu not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Menu updated successfully",
+            data: updatedMenu,
+        });
+    } catch (error) {
+        console.error("Error updating menu:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update menu",
+            error: error.message,
+        });
+    }
+};
+
+// Delete menu by menuId
+const deleteMenu = async (req, res) => {
+    try {
+        const { menuId } = req.params;
+
+        const deletedMenu = await Menu.findOneAndDelete({ menuId });
+
+        if (!deletedMenu) {
+            return res.status(404).json({
+                success: false,
+                message: "Menu not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Menu deleted successfully",
+        });
+    } catch (error) {
+        console.error("Error deleting menu:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to delete menu",
+            error: error.message,
+        });
+    }
+};
+
 module.exports = {
     getDashboardStats,
     getMenus,
+    createMenu,
+    updateMenu,
+    deleteMenu,
 };
