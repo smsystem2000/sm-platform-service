@@ -19,7 +19,6 @@ const generateSchoolId = async () => {
     return `SCHL${String(newIdNumber).padStart(5, "0")}`;
 };
 
-// Create a new school
 const createSchool = async (req, res) => {
     try {
         const {
@@ -31,6 +30,7 @@ const createSchool = async (req, res) => {
             schoolEmail,
             schoolContact,
             schoolWebsite,
+            attendanceSettings,
         } = req.body;
 
         // Validate dbName is provided
@@ -66,6 +66,7 @@ const createSchool = async (req, res) => {
             schoolEmail,
             schoolContact,
             schoolWebsite,
+            attendanceSettings,
         });
 
         const savedSchool = await newSchool.save();
